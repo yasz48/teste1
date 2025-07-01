@@ -1,1 +1,83 @@
+import re
 
+def verificar_forca_senha(senha):
+    """
+    Verifica a força de uma senha com base em vários critérios.
+    
+    Retorna:
+    - Pontuação (0-100)
+    - Mensagem descritiva
+    """
+    pontuacao = 0
+    mensagens = []
+    
+    # Verifica o comprimento da senha
+    if len(senha) < 8:
+        mensagens.append("Senha muito curta (mínimo 8 caracteres)")
+    else:
+        pontuacao += 25
+        if len(senha) >= 12:
+            pontuacao += 15
+    
+    # Verifica se contém letras maiúsculas e minúsculas
+    if any(c.islower() for c in senha) and any(c.isupper() for c in senha):
+        pontuacao += 20
+    else:
+        mensagens.append("Use letras maiúsculas e minúsculas")
+    
+    # Verifica se contém números
+    if any(c.isdigit() for c in senha):
+        pontuacao += 20
+    else:
+        mensagens.append("Adicione números")
+    
+    # Verifica caracteres especiais
+    if re.search(r'[!@#$%^&*(),.?":{}|<>]', senha):
+        pontuacao += 20
+    else:
+        mensagens.append("Adicione caracteres especiais (!@#$...)")
+    
+    # Verifica senhas comuns (lista básica)
+    senhas_fracas = ["password", "123456", "qwerty", "senha", "admin"]
+    if senha.lower() in senhas_fracas:
+        pontuacao = 0
+        mensagens.append("Esta senha é muito comum e fácil de adivinhar")
+    
+    # Garante que a pontuação não ultrapasse 100
+    pontuacao = min(pontuacao, 100)
+    
+    # Determina o nível de força
+    if pontuacao < 40:
+        nivel = "Muito Fraca"
+    elif pontuacao < 60:
+        nivel = "Fraca"
+    elif pontuacao < 80:
+        nivel = "Moderada"
+    elif pontuacao < 90:
+        nivel = "Forte"
+    else:
+        nivel = "Muito Forte"
+    
+    return pontuacao, nivel, mensagens
+
+def main():
+    print("=== Verificador de Força de Senha ===")
+    while True:
+        senha = input("\nDigite uma senha para testar (ou 'sair' para encerrar): ")
+        if senha.lower() == 'sair':
+            break
+        
+        pontuacao, nivel, mensagens = verificar_forca_senha(senha)
+        
+        print(f"\nPontuação: {pontuacao}/100")
+        print(f"Nível: {nivel}")
+        
+        if pontuacao < 70:
+            print("\nRecomendações para melhorar sua senha:")
+            for msg in mensagens:
+                print(f"- {msg}")
+        else:
+            print("Sua senha é segura!")
+
+if __name__ == "__main__":
+    main()
